@@ -254,7 +254,7 @@ class TVHeadend(object):
     async def fetch_channel_list(self):
         """Fetch channel list"""
         result = await self.api_get(
-            self.root_url + CHANNELS_URL, {"start": "0", "limit": "999999999"}
+            endpoint=CHANNELS_URL, params={"start": "0", "limit": "999999999"}
         )
         if result is None:
             _LOGGER.error("Unable to fetch channels.")
@@ -265,7 +265,7 @@ class TVHeadend(object):
     async def fetch_service_list(self):
         """Fetch service list"""
         result = await self.api_get(
-            self.root_url + SERVICES_URL, {"start": "0", "limit": "999999999"}
+            endpoint=SERVICES_URL, params={"start": "0", "limit": "999999999"}
         )
         if result is None:
             _LOGGER.error("Unable to fetch services.")
@@ -276,7 +276,7 @@ class TVHeadend(object):
     async def fetch_muxes_list(self):
         """Fetch muxes list"""
         result = await self.api_get(
-            self.root_url + MUXES_URL, {"start": "0", "limit": "999999999"}
+            endpoint=MUXES_URL, params={"start": "0", "limit": "999999999"}
         )
         if result is None:
             _LOGGER.error("Unable to fetch muxes.")
@@ -293,9 +293,10 @@ class TVHeadend(object):
             if chan["name"] == channel_name:
                 return chan["services"]
 
-    async def api_post(self, url=None, params=None, data=None):
+    async def api_post(self, endpoint=None, params=None, data=None):
         """Make api post request."""
         post = None
+        url = f"{self.root_url}{endpoint}"
         try:
             with async_timeout.timeout(DEFAULT_TIMEOUT, loop=self._event_loop):
                 post = await self._api_session.post(
@@ -321,10 +322,11 @@ class TVHeadend(object):
             _LOGGER.error("Error posting data. %s", err)
             return None
 
-    async def api_get(self, url, params=None):
+    async def api_get(self, endpoint, params=None):
         """Make api fetch request."""
         request = None
         headers = DEFAULT_HEADERS.copy()
+        url = f"{self.root_url}{endpoint}"
         # headers.update({'Session-Token': self._token})
         # TODO: fix when to use rooturl and when to use url sothis works with the fetchers too not just idnode updaters
         try:
@@ -353,12 +355,12 @@ class TVHeadend(object):
             _LOGGER.error("Error fetching data. %s", err)
             return None
 
-    async def api_put(self, url, data=None):
+    async def api_put(self, endpoint, data=None):
         """Make api put request."""
         put = None
         headers = DEFAULT_HEADERS.copy()
         # headers.update({'Session-Token': self._token})
-
+        url = f"{self.root_url}{endpoint}"
         try:
             with async_timeout.timeout(DEFAULT_TIMEOUT, loop=self._event_loop):
                 put = await self._api_session.put(
